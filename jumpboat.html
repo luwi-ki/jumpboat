@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Jump Boat Astronaut</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: radial-gradient(circle at bottom, #0a0f2c, #000);
+    font-family: Arial, sans-serif;
+  }
+
+  .title {
+    position: absolute;
+    top: 15px;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 26px;
+  }
+
+  .hint {
+    position: absolute;
+    top: 50px;
+    width: 100%;
+    text-align: center;
+    color: #ccc;
+    font-size: 14px;
+  }
+
+  .planet {
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #6dd5ed, #2193b0);
+    box-shadow: 0 0 30px rgba(255,255,255,0.7);
+  }
+
+  .planet:nth-child(2) {
+    background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+  }
+
+  .planet:nth-child(3) {
+    background: linear-gradient(45deg, #a18cd1, #fbc2eb);
+  }
+
+  .astronaut {
+    position: absolute;
+    width: 80px;
+  }
+
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+  }
+</style>
+</head>
+<body>
+
+<div class="title">🚀 Jump Boat Astronaut</div>
+<div class="hint">Press SPACE to jump</div>
+
+<!-- planets -->
+<div class="planet" style="left:10%; top:65%;"></div>
+<div class="planet" style="left:40%; top:30%;"></div>
+<div class="planet" style="left:75%; top:70%;"></div>
+
+<!-- astronaut -->
+<img src="https://cdn-icons-png.flaticon.com/512/3212/3212608.png" class="astronaut" id="astro">
+
+<script>
+  // stars
+  for (let i = 0; i < 120; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * window.innerWidth + 'px';
+    star.style.top = Math.random() * window.innerHeight + 'px';
+    document.body.appendChild(star);
+  }
+
+  const astro = document.getElementById('astro');
+  const planets = document.querySelectorAll('.planet');
+
+  let current = 0;
+  let isJumping = false;
+
+  let x = 0;
+  let y = 0;
+  let vx = 0;
+  let vy = 0;
+
+  const gravity = 0.5;
+
+  function getPlanetPos(i) {
+    const r = planets[i].getBoundingClientRect();
+    return {
+      x: r.left + 20,
+      y: r.top - 70
+    };
+  }
+
+  function placeOnPlanet(i) {
+    const p = getPlanetPos(i);
+    x = p.x;
+    y = p.y;
+    astro.style.left = x + 'px';
+    astro.style.top = y + 'px';
+  }
+
+  function jump() {
+    if (isJumping) return;
+
+    const next = (current + 1) % planets.length;
+    const target = getPlanetPos(next);
+
+    const dx = target.x - x;
+    const dy = target.y - y;
+
+    vx = dx / 30;
+    vy = dy / 30 - 10;
+
+    isJumping = true;
+    current = next;
+  }
+
+  function update() {
+    if (isJumping) {
+      vy += gravity;
+      x += vx;
+      y += vy;
+
+      astro.style.left = x + 'px';
+      astro.style.top = y + 'px';
+      astro.style.transform = `rotate(${vx * 3}deg)`;
+
+      const target = getPlanetPos(current);
+
+      if (Math.abs(x - target.x) < 15 && Math.abs(y - target.y) < 15 && vy > 0) {
+        placeOnPlanet(current);
+        isJumping = false;
+        vx = 0;
+        vy = 0;
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+      jump();
+    }
+  });
+
+  placeOnPlanet(0);
+  update();
+</script>
+
+</body>
+</html>
